@@ -5,6 +5,7 @@ This bash script automates the setup of a Directus instance for development purp
 ## Features
 
 - Automatically installs the latest version of Directus
+- Actually Directus only supports Node.js 18.x, so the script checks if you have the correct version installed
 - Sets up a SQLite database
 - Configures environment variables
 - Creates an admin user
@@ -14,7 +15,7 @@ This bash script automates the setup of a Directus instance for development purp
 
 ## Prerequisites
 
-- Node.js and npm installed on your system
+- Node.js and npm installed on your system (engine 18.x)
 - Bash shell environment
 
 ## Usage
@@ -68,7 +69,7 @@ The following npm scripts are available in your project:
 - `npm run dev`: Runs Directus in development mode with extension support
 - `npm run dev:extensions`: Starts the development process for all extensions
 - `npm run dev:root`: Runs the Directus server with nodemon, watching for changes in extensions
-- `npm run create-extension`: Creates a new Directus extension in the correct directory
+- `npm run extension`: Creates a new Directus extension in the correct directory
 
 ## Important Notes
 

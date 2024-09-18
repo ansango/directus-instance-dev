@@ -17,6 +17,13 @@ ask_yes_no() {
     done
 }
 
+# Check if node engine is 18.x
+
+if ! node -v | grep -q "v18"; then
+    echo "Please use Node.js version 18.x to continue."
+    exit 1
+fi
+
 # Request project name
 read -p "Enter the project name: " PROJECT_NAME
 
@@ -101,60 +108,64 @@ const path = require('path');
 
 const extensionsDir = path.join(__dirname, '..', 'extensions');
 
-// Getting all folders inside extensions
+// Get command line arguments
+const args = process.argv.slice(2);
+const command = args[0] || 'dev'; // Default to 'dev' if no argument is provided
+
+// Get all folders inside the extensions directory
 const extensions = fs.readdirSync(extensionsDir, { withFileTypes: true })
   .filter(dirent => dirent.isDirectory())
   .map(dirent => dirent.name);
 
-console.log('Starting development for extensions: ' + extensions);
+console.log("Starting " + command + " for extensions:", extensions);
 
-// Function that execute npm run dev for each extension
-function runDevForExtension(extension) {
+// Function to execute npm run dev or npm run build for an extension
+function runCommandForExtension(extension, cmd) {
   const extensionPath = path.join(extensionsDir, extension);
-  console.log(`Iniciando desarrollo para ${extension}`);
-  return spawn('npm', ['run', 'dev'], { 
+  console.log("Running " + cmd + "for " + extension + "...");
+  return spawn('npm', ['run', cmd], { 
     cwd: extensionPath, 
     stdio: 'inherit',
     shell: true 
   });
 }
 
-// Execute npm run dev for each extension
-const processes = extensions.map(runDevForExtension);
+// Execute the command for each extension
+const processes = extensions.map(ext => runCommandForExtension(ext, command));
 
-// Check if dist folder exists for an extension
+// Function to check if the dist directory exists for an extension
 function checkDistExists(extension) {
   const distPath = path.join(extensionsDir, extension, 'dist');
   return fs.existsSync(distPath);
 }
 
-// Function wait for all dist folders to be created
+// Function to check all dist directories
 function checkAllDists() {
   return extensions.every(checkDistExists);
 }
 
-// Wait for all dist folders to be created
+// Function to wait for all dist directories to be created
 function waitForDists() {
   return new Promise((resolve) => {
     const checkInterval = setInterval(() => {
       if (checkAllDists()) {
         clearInterval(checkInterval);
-        console.log('All dist folders are ready');
+        console.log("All dist directories have been created");
         resolve();
       }
     }, 1000);
   });
 }
 
-// Wait for all dist folders to be created
+// Wait for all dist directories to be created
 waitForDists().then(() => {
-  console.log('Running nodemon for root extension');
+  console.log(command + " for extensions completed. Proceeding to the next step.");
   process.exit(0);
 });
 
-// Stop all processes when SIGINT signal is received
+// Handle process termination
 process.on('SIGINT', () => {
-  console.log('Deteniendo todos los procesos de desarrollo de extensiones...');
+  console.log("Stopping all " + command + " processes for extensions...");
   processes.forEach(process => process.kill());
   process.exit(0);
 });
@@ -165,10 +176,11 @@ cat > package.json << EOL
 {
   "name": "$PROJECT_NAME",
   "version": "1.0.0",
-  "description": "Directus Instance",
+  "description": "Directus Instance - $PROJECT_NAME",
   "scripts": {
-    "start": "npx directus start",
-    "dev:extensions": "node scripts/dev-extensions.js",
+    "start": "npm run build-extensions && npx directus start",
+    "dev:extensions": "node scripts/dev-extensions.js dev",
+    "build-extensions": "node scripts/dev-extensions.js build",
     "dev:root": "nodemon --exec npx directus start --watch extensions",
     "dev": "npm run dev:extensions && npm run dev:root",
     "extension": "cd extensions && npx create-directus-extension@latest"
@@ -179,6 +191,9 @@ cat > package.json << EOL
    "devDependencies": {
     "nodemon": "latest",
     "concurrently": "latest"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
 EOL
