@@ -2,7 +2,7 @@
 
 This bash script automates the setup of a Directus instance for development purposes, including support for multiple extensions.
 
-## Features
+## 🎯 Features
 
 - Automatically installs the latest version of Directus
 - Actually Directus only supports Node.js 18.x, so the script checks if you have the correct version installed
@@ -15,10 +15,10 @@ This bash script automates the setup of a Directus instance for development purp
 
 ## Prerequisites
 
-- Node.js and npm installed on your system (engine 18.x)
+- Node.js and npm installed on your system [(engine 18.x)](https://docs.directus.io/contributing/running-locally.html#running-dev-environment) ⚠️
 - Bash shell environment
 
-## Usage
+## 🛠 Usage
 
 1. Download the `directus-instance-dev.sh` script to your local machine.
 
