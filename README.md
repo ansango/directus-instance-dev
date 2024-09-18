@@ -58,7 +58,7 @@ After the script completes, you can:
 - Create a new Directus extension:
   ```
   cd your-project-name
-  npm run create-extension
+  npm run extension
   ```
 
 ## Scripts
